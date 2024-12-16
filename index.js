@@ -4,6 +4,8 @@ import { engine } from 'express-handlebars';
 import LZString from 'lz-string'
 import knex from 'knex';
 import 'dotenv/config';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const port = 3000;
@@ -33,6 +35,8 @@ async function storeAudio(audio) {
         .catch(err => console.error('Error storing audio:', err));
 }
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Storage configuration
 const storage = multer.memoryStorage();
 
@@ -58,7 +62,10 @@ const fileFilterAudio = (req, file, cb) => {
 const uploadImg = multer({ storage: storage, fileFilter: fileFilterImg });
 const uploadAudio = multer({ storage: storage, fileFilter: fileFilterAudio });
 
-app.engine('handlebars', engine());
+app.engine('handlebars', engine({
+    partialsDir: path.join(__dirname, 'views', 'partials')
+}));
+
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 app.use(express.static('public'));
